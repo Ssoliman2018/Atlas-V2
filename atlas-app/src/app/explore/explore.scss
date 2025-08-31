@@ -1,0 +1,289 @@
+.explore-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 2rem 0;
+  font-family: 'Cairo', sans-serif;
+}
+
+/* Header Section */
+.header-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  margin-bottom: 3rem;
+}
+
+.nav-tabs {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0;
+  margin-bottom: 2rem;
+  position: relative;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.nav-tab {
+  padding: 1rem 2rem;
+  border-radius: 12px 12px 0 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+  color: #015C44;
+  font-weight: 600;
+  font-size: 1.1rem;
+  border: 2px solid #e0e0e0;
+  border-bottom: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  
+  &:hover {
+    background: #f8f9fa;
+    border-color: #015C44;
+  }
+  
+  &.active {
+    background: #015C44;
+    color: white;
+    border-color: #015C44;
+    border-bottom: 2px solid #015C44;
+    margin-bottom: -2px;
+    z-index: 2;
+  }
+}
+
+.chevron-icon {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.3s ease;
+}
+
+.nav-tab.active .chevron-icon {
+  transform: rotate(180deg);
+}
+
+.tab-indicator {
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  height: 2px;
+  background: #015C44;
+  transition: all 0.3s ease;
+  z-index: 1;
+}
+
+.header-description {
+  text-align: right;
+  font-size: 1.2rem;
+  color: #333;
+  line-height: 1.6;
+  max-width: 800px;
+  margin-left: auto;
+}
+
+/* Content Body */
+.content-body {
+  // max-width: 1200px;
+  height: 80vh;
+  width: 98%;
+  margin: 0 auto;
+  padding: 3rem;
+  background: #FCFCF7;
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  // margin-bottom: 3rem;
+}
+
+.interactive-cards {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.card {
+  flex: 1;
+  min-width: 200px;
+  padding: 2rem;
+  text-align: center;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.1);
+    border-color: #e0e0e0;
+  }
+  
+  &.active {
+    border-color: #015C44;
+    background: rgba(1, 92, 68, 0.05);
+    
+    .card-icon {
+      color: #015C44;
+    }
+    
+    .card-text {
+      color: #015C44;
+      font-weight: 700;
+    }
+  }
+}
+
+.card-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1.5rem;
+  color: #666;
+  transition: all 0.3s ease;
+  
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+  
+  &.active {
+    color: #015C44;
+  }
+}
+
+.card-text {
+  font-size: 1.1rem;
+  color: #333;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* Bottom Pattern */
+.bottom-pattern {
+  position: relative;
+  height: 120px;
+  overflow: hidden;
+}
+
+.wave-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, #015C44, transparent);
+  opacity: 0.3;
+  
+  &:nth-child(1) {
+    bottom: 20px;
+    animation: wave 3s ease-in-out infinite;
+  }
+  
+  &:nth-child(2) {
+    bottom: 40px;
+    animation: wave 3s ease-in-out infinite 0.5s;
+  }
+  
+  &:nth-child(3) {
+    bottom: 60px;
+    animation: wave 3s ease-in-out infinite 1s;
+  }
+}
+
+@keyframes wave {
+  0%, 100% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(100%);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .interactive-cards {
+    gap: 1.5rem;
+  }
+  
+  .card {
+    min-width: 180px;
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .header-section,
+  .content-body {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+  
+  .nav-tabs {
+    justify-content: center;
+  }
+  
+  .header-description {
+    text-align: center;
+    margin: 0 auto;
+  }
+  
+  .interactive-cards {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .card {
+    width: 100%;
+    max-width: 400px;
+  }
+}
+
+@media (max-width: 768px) {
+  .explore-container {
+    padding: 1rem 0;
+  }
+  
+  .header-section {
+    margin-bottom: 2rem;
+  }
+  
+  .nav-tabs {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .nav-tab {
+    width: 100%;
+    max-width: 300px;
+    text-align: center;
+  }
+  
+  .content-body {
+    padding: 2rem 1.5rem;
+  }
+  
+  .header-description {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-section,
+  .content-body {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .nav-tab {
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+  }
+  
+  .card {
+    padding: 1.5rem 1rem;
+  }
+  
+  .card-text {
+    font-size: 1rem;
+  }
+}

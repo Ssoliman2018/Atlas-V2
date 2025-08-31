@@ -1,0 +1,169 @@
+<div class="explore-map-container">
+  <!-- Back Button -->
+  <!-- <div class="back-button" (click)="goBack()">
+    <svg viewBox="0 0 24 24" fill="currentColor">
+      <path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z"/>
+    </svg>
+    <span>العودة</span>
+  </div> -->
+
+  <!-- Left Panel - Map Section -->
+  <div class="map-panel">
+    <div class="map-container">
+      <!-- Map Content -->
+      <div class="map-content">
+        <div #mapViewDiv class="map-container">
+          <!-- Fallback content when map is loading -->
+          <div class="map-loading" *ngIf="!mapView">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">جاري تحميل الخريطة...</div>
+          </div>
+        </div>
+        
+        <!-- Basemap Controls -->
+        <div class="basemap-controls">
+          <div class="basemap-info">
+            <span class="current-basemap">{{ getCurrentBasemapName() }}</span>
+          </div>
+          <div class="basemap-buttons">
+            <button class="basemap-btn" (click)="changeBasemap('previous')" title="Previous Basemap">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z"/>
+              </svg>
+            </button>
+            <button class="basemap-btn" (click)="changeBasemap('next')" title="Next Basemap">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"/>
+              </svg>
+            </button>
+            <button class="basemap-btn refresh-btn" (click)="refreshMap()" title="Refresh Map">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+      
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel - Information Sidebar -->
+  <div class="sidebar-panel">
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+      <div class="nav-tab" 
+           [class.active]="activeTab === 'استكشاف'"
+           (click)="setActiveTab('استكشاف')">
+        <span>استكشاف</span>
+        <svg class="active-arrow" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M7,10L12,15L17,10H7Z"/>
+        </svg>
+      </div>
+      <div class="nav-tab" 
+           [class.active]="activeTab === 'خرائط'"
+           (click)="setActiveTab('خرائط')">
+        <span>خرائط</span>
+      </div>
+    </div>
+
+    <!-- Risk Selection -->
+    <div class="risk-selection">
+      <h3 class="risk-question">أي جانب من جوانب مخاطر المياه تريد رؤيته ؟</h3>
+      <div class="risk-dropdown">
+        <span class="selected-risk">{{ selectedRiskType }}</span>
+        <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M7,10L12,15L17,10H7Z"/>
+        </svg>
+      </div>
+    </div>
+
+ 
+
+    <!-- More Information Link -->
+    <div class="more-info-link" (click)="toggleMoreInfo()">
+      <span>المزيد من المعلومات</span>
+      <svg class="info-arrow" [class.expanded]="showMoreInfo" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M7,10L12,15L17,10H7Z"/>
+      </svg>
+    </div>
+
+    <!-- Collapsible Info Section -->
+    <div class="info-section" [class.expanded]="showMoreInfo">
+         <!-- Risk Layer Transparency Section -->
+    <div class="transparency-section">
+      <h3 class="section-title">شفافية طبقة المخاطر</h3>
+      <div class="slider-container">
+        <input type="range" class="transparency-slider" min="0" max="100" value="70" 
+               (input)="onTransparencyChange($event)">
+        <div class="slider-track">
+          <div class="slider-fill" [style.width.%]="transparencyValue"></div>
+          <div class="slider-thumb" [style.left.%]="transparencyValue"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional Information Section -->
+    <div class="additional-info-section">
+      <h3 class="section-question">ما هي المعلومات الإضافية التي ترغب في رؤيته</h3>
+      <div class="info-dropdown" (click)="toggleAdditionalInfoDropdown()">
+        <span class="placeholder-text">{{ getSelectedAdditionalInfoName() }}</span>
+        <svg class="dropdown-arrow" [class.expanded]="showAdditionalInfoDropdown" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M7,10L12,15L17,10H7Z"/>
+        </svg>
+      </div>
+      
+      <!-- Additional Info Options Dropdown -->
+      <div class="additional-info-options" [class.expanded]="showAdditionalInfoDropdown">
+        <div class="info-option" 
+             *ngFor="let option of getAdditionalInfoOptions()"
+             (click)="selectAdditionalInfo(option.id)">
+          <span class="option-name">{{ option.name }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Boundaries Section -->
+    <div class="boundaries-section">
+      <div class="boundaries-header">
+        <h3 class="section-question">ما هي الحدود التي ترغب في رؤيتها ؟</h3>
+        <div class="info-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M13,17H11V15H13V17M13,13H11V7H13V13Z"/>
+          </svg>
+        </div>
+      </div>
+      <div class="boundaries-dropdown">
+        <span class="placeholder-text">اختر الحدود</span>
+        <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M7,10L12,15L17,10H7Z"/>
+        </svg>
+      </div>
+    </div>
+
+    </div>
+
+    <h3 class="section-title">مخاطر الحوض المادية</h3>
+    <h4 class="section-subtitle">مخاطر المياه</h4>
+    <div class="section-description">
+      <p>
+        تشمل مخاطر الحوض المادية كل من الظروف الطبيعية والأنشطة البشرية في أحواض الأنهار. 
+        وتشمل أربع فئات رئيسية: توفر المياه، والجفاف، والفيضانات، وجودة المياه، وحالة خدمات النظام البيئي. 
+        وتعتبر المواقف التي تشهد ندرة في المياه، أو فائض، أو عدم ملاءمة للاستخدام، أو تدهور النظم البيئية المحيطة 
+        التي تؤثر على الخدمات المائية. يُنصح بالرجوع إلى الوثائق للحصول على مخاطر إقليمية محددة.
+      </p>
+    </div>
+    <!-- Legend/Filter -->
+    <div class="legend-section">
+      <h3 class="legend-title">مرشح مخاطر المياه التابع للصندوق العالمي للطبيعة (2024)</h3>
+      <div class="color-gradient-bar">
+        <div class="gradient-fill"></div>
+      </div>
+      <div class="legend-labels">
+        <span class="label-high">مخاطرة عالية جدًا</span>
+        <span class="label-low">غير متوفر مخاطرة منخفضة جدًا</span>
+      </div>
+    </div>
+  </div>
+</div>
