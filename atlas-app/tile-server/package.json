@@ -1,0 +1,27 @@
+{
+  "name": "water-stress-tile-server",
+  "version": "1.0.0",
+  "description": "Local tile server for serving XYZ water stress tiles",
+  "main": "tile-server.js",
+  "scripts": {
+    "start": "node tile-server.js",
+    "dev": "nodemon tile-server.js",
+    "test": "node -e \"console.log('Testing tile server...'); require('./tile-server.js')\""
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": [
+    "tiles",
+    "xyz",
+    "gis",
+    "mapping",
+    "water-stress"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
