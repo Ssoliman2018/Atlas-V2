@@ -32,6 +32,14 @@ interface WaterStressXYZLayer {
   maxZoom: number;
   visible: boolean;
   attribution?: string;
+  legend?: {
+    items: Array<{
+      color: string;
+      label: string;
+      labelAr: string;
+      value?: string;
+    }>;
+  };
   extent?: {
     xmin: number;
     ymin: number;
@@ -51,7 +59,7 @@ export class ExploreMapComponent implements OnInit, AfterViewInit {
   @ViewChild('mapViewDiv', { static: true }) private mapViewEl!: ElementRef;
   
   activeTab: string = 'استكشاف';
-  selectedRiskType: string = 'مخاطر الحوض المادية';
+  selectedRiskType: string = ''; // Changed to empty initially
   showMoreInfo: boolean = false;
   transparencyValue: number = 70;
   
@@ -70,6 +78,8 @@ export class ExploreMapComponent implements OnInit, AfterViewInit {
   public showWaterStressDropdown: boolean = false;
   public availableLayers: WaterStressXYZLayer[] = [];
   public isLoadingLayers: boolean = false;
+  public selectedLayerInfo: WaterStressXYZLayer | null = null;
+  public showLayerDescription: boolean = false;
   
   // Local tile server configuration
   private readonly TILE_SERVER_URL = 'http://localhost:3333';
@@ -86,47 +96,93 @@ export class ExploreMapComponent implements OnInit, AfterViewInit {
     'topo-vector'
   ];
 
-  // Water stress XYZ tile layers configuration
-  private waterStressXYZData: WaterStressXYZLayer[] = [
-    {
-      id: 'annual_water_stress',
-      name: 'Annual Water Stress',
-      nameAr: 'الإجهاد المائي السنوي',
-      description: 'Annual water stress levels across Saudi Arabia',
-      descriptionAr: 'مستويات الإجهاد المائي السنوي في المملكة العربية السعودية',
-      tilePath: `${this.TILE_SERVER_URL}/tiles/annual_water_stress/{z}/{x}/{y}.png`,
-      localPath: 'D:/Projects/evara/Water Stress/Water Stress',
-      opacity: 0.7,
-      minZoom: 0,
-      maxZoom: 18,
-      visible: false,
-      extent: {
-        xmin: 34.5,
-        ymin: 16.0,
-        xmax: 55.5,
-        ymax: 32.5
-      }
+  // Water stress XYZ tile layers configuration - Updated with new layer and legends
+ private waterStressXYZData: WaterStressXYZLayer[] = [
+  {
+    id: 'annual_water_stress',
+    name: 'Annual Water Stress',
+    nameAr: 'الإجهاد المائي السنوي',
+    description: 'Annual water stress levels across Saudi Arabia showing water scarcity and availability patterns',
+    descriptionAr: 'يُظهر مستويات الإجهاد المائي السنوي في جميع أنحاء المملكة العربية السعودية، ويشمل تحليل ندرة المياه وأنماط التوفر المائي. يقيس هذا المؤشر نسبة استهلاك المياه إلى إجمالي المياه المتجددة المتاحة، ويساعد في تحديد المناطق التي تواجه ضغطاً مائياً عالياً والمناطق التي تتمتع بوفرة مائية نسبية. البيانات ضرورية لوضع استراتيجيات إدارة الموارد المائية المستدامة.',
+    tilePath: `${this.TILE_SERVER_URL}/tiles/annual_water_stress/{z}/{x}/{y}.png`,
+    localPath: 'D:/Projects/evara/Water Stress/Water Stress',
+    opacity: 0.7,
+    minZoom: 0,
+    maxZoom: 18,
+    visible: false,
+    legend: {
+      items: [
+        { color: '#d73027', label: 'Extremely High (>80%)', labelAr: 'عالي جداً (>80%)', value: '>80%' },
+        { color: '#f46d43', label: 'High (40-80%)', labelAr: 'عالي (40-80%)', value: '40-80%' },
+        { color: '#fdae61', label: 'Medium (20-40%)', labelAr: 'متوسط (20-40%)', value: '20-40%' },
+        { color: '#fee08b', label: 'Low-Medium (10-20%)', labelAr: 'منخفض-متوسط (10-20%)', value: '10-20%' },
+        { color: '#e6f598', label: 'Low (<10%)', labelAr: 'منخفض (<10%)', value: '<10%' }
+      ]
     },
-    {
-      id: 'riverine_flood_risk',
-      name: 'Riverine Flood Risk',
-      nameAr: 'مخاطر الفيضانات النهرية',
-      description: 'Riverine flood risk assessment across Saudi Arabia',
-      descriptionAr: 'تقييم مخاطر الفيضانات النهرية في المملكة العربية السعودية',
-      tilePath: `${this.TILE_SERVER_URL}/tiles/riverine_flood_risk/{z}/{x}/{y}.png`,
-      localPath: 'D:/Projects/evara/Riverine flood risk/Riverine flood risk',
-      opacity: 0.7,
-      minZoom: 0,
-      maxZoom: 18,
-      visible: false,
-      extent: {
-        xmin: 34.5,
-        ymin: 16.0,
-        xmax: 55.5,
-        ymax: 32.5
-      }
+    extent: {
+      xmin: 34.5,
+      ymin: 16.0,
+      xmax: 55.5,
+      ymax: 32.5
     }
-  ];
+  },
+  {
+    id: 'riverine_flood_risk',
+    name: 'Riverine Flood Risk',
+    nameAr: 'مخاطر الفيضانات النهرية',
+    description: 'Riverine flood risk assessment showing areas prone to river flooding and overflow',
+    descriptionAr: 'تقييم شامل لمخاطر الفيضانات النهرية يُظهر المناطق المعرضة للفيضانات من الأنهار والأودية. يشمل التحليل المناطق المعرضة لفيض الأنهار الموسمية والدائمة، ويأخذ في الاعتبار التضاريس وأنماط الهطول المطري والبنية التحتية للتحكم في المياه. هذه البيانات حيوية لتخطيط المدن وإدارة مخاطر الكوارث الطبيعية وحماية المجتمعات والممتلكات من أضرار الفيضانات.',
+    tilePath: `${this.TILE_SERVER_URL}/tiles/riverine_flood_risk/{z}/{x}/{y}.png`,
+    localPath: 'D:/Projects/evara/Riverine flood risk/Riverine flood risk',
+    opacity: 0.7,
+    minZoom: 0,
+    maxZoom: 18,
+    visible: false,
+    legend: {
+      items: [
+        { color: '#800026', label: 'Very High Risk', labelAr: 'مخاطر عالية جداً' },
+        { color: '#bd0026', label: 'High Risk', labelAr: 'مخاطر عالية' },
+        { color: '#e31a1c', label: 'Medium Risk', labelAr: 'مخاطر متوسطة' },
+        { color: '#fc4e2a', label: 'Low-Medium Risk', labelAr: 'مخاطر منخفضة-متوسطة' },
+        { color: '#feb24c', label: 'Low Risk', labelAr: 'مخاطر منخفضة' }
+      ]
+    },
+    extent: {
+      xmin: 34.5,
+      ymin: 16.0,
+      xmax: 55.5,
+      ymax: 32.5
+    }
+  },
+  {
+    id: 'coastal_flood_risk',
+    name: 'Coastal Flood Risk',
+    nameAr: 'مخاطر الفيضانات الساحلية',
+    description: 'Coastal flood risk assessment showing areas vulnerable to sea level rise and storm surge flooding',
+    descriptionAr: 'تقييم مخاطر الفيضانات الساحلية يُظهر المناطق المعرضة لارتفاع مستوى سطح البحر وفيضانات العواصف البحرية. يشمل التحليل تأثير التغيرات المناخية على المناطق الساحلية، والعواصف الاستوائية، والمد والجزر الاستثنائي. هذه البيانات أساسية للمدن الساحلية مثل جدة والدمام والجبيل لوضع خطط الحماية الساحلية وإدارة التنمية العمرانية في المناطق المعرضة للخطر وحماية البنية التحتية الحيوية.',
+    tilePath: `${this.TILE_SERVER_URL}/tiles/coastal_flood_risk/{z}/{x}/{y}.png`,
+    localPath: 'D:/Projects/evara/Coastal flood risk/Coastal flood risk',
+    opacity: 0.7,
+    minZoom: 0,
+    maxZoom: 18,
+    visible: false,
+    legend: {
+      items: [
+        { color: '#08519c', label: 'Extreme Risk', labelAr: 'مخاطر شديدة' },
+        { color: '#3182bd', label: 'High Risk', labelAr: 'مخاطر عالية' },
+        { color: '#6baed6', label: 'Medium Risk', labelAr: 'مخاطر متوسطة' },
+        { color: '#9ecae1', label: 'Low Risk', labelAr: 'مخاطر منخفضة' },
+        { color: '#c6dbef', label: 'Very Low Risk', labelAr: 'مخاطر منخفضة جداً' }
+      ]
+    },
+    extent: {
+      xmin: 34.5,
+      ymin: 16.0,
+      xmax: 55.5,
+      ymax: 32.5
+    }
+  }
+];
 
   constructor(private router: Router, private http: HttpClient) { }
 
@@ -168,10 +224,113 @@ export class ExploreMapComponent implements OnInit, AfterViewInit {
       this.isLoadingLayers = false;
     }
   }
+// ADD these properties to your component class:
+public showLayerDropdown: boolean = false;
+public selectedLayerId: string = '';
+public mapLayers = [
+  { id: 'annual_water_stress', name: 'الإجهاد المائي السنوي' },
+  { id: 'riverine_flood_risk', name: 'مخاطر الفيضانات النهرية' },
+  { id: 'coastal_flood_risk', name: 'مخاطر الفيضانات الساحلية' }
+];
 
-  /**
-   * Check if the local tile server is healthy
-   */
+// ADD these methods to your component:
+
+/**
+ * Toggle layer dropdown visibility
+ */
+toggleLayerDropdown(): void {
+  this.showLayerDropdown = !this.showLayerDropdown;
+}
+
+/**
+ * Get selected layer name for display
+ */
+getSelectedLayerName(): string {
+  if (!this.selectedLayerId) return 'اختر نوع المخاطر';
+  const layer = this.layerMetadata[this.selectedLayerId];
+  return layer ? layer.nameAr : 'اختر نوع المخاطر';
+}
+
+onTransparencyChange(event: any): void {
+  // Get slider value as number
+  this.transparencyValue = Number(event.target.value);
+  
+  // Calculate opacity (slider 0-100 becomes 0.0-1.0)
+  const opacity = this.transparencyValue / 100;
+  
+  console.log(`Slider: ${this.transparencyValue}%, Opacity: ${opacity}`);
+  
+  // Apply to ALL visible layers immediately
+  this.waterStressXYZLayers.forEach(layer => {
+    if (layer.visible) {
+      layer.opacity = opacity;
+      console.log(`Applied opacity ${opacity} to visible layer`);
+    }
+  });
+  
+  // Also apply to population density if visible
+  if (this.populationDensityLayer && this.populationDensityLayer.visible) {
+    this.populationDensityLayer.opacity = opacity;
+  }
+}
+
+// ALSO update your selectLayer method to ensure layer gets current opacity:
+async selectLayer(layerId: string): Promise<void> {
+  this.selectedLayerId = layerId;
+  this.selectedRiskType = layerId;
+  this.showLayerDropdown = false;
+  this.selectedLayerInfo = this.layerMetadata[layerId] || null;
+  
+  // Hide ALL layers first
+  this.waterStressXYZLayers.forEach(layer => {
+    layer.visible = false;
+  });
+  
+  // Find and show selected layer
+  const selectedLayer = this.waterStressXYZLayers.find(layer => 
+    (layer as any).layerId === layerId
+  );
+
+  if (selectedLayer) {
+    if (!selectedLayer.loaded) {
+      await selectedLayer.load();
+    }
+    
+    // Show layer with current opacity
+    selectedLayer.visible = true;
+    selectedLayer.opacity = this.transparencyValue / 100;
+    this.currentWaterStressLayer = selectedLayer;
+    
+    console.log(`Layer ${layerId} visible with opacity ${this.transparencyValue / 100}`);
+  }
+}
+
+
+getSelectedLayerTitle(): string {
+  if (!this.selectedLayerInfo) return 'مخاطر المياه';
+  return this.selectedLayerInfo.nameAr;
+}
+
+/**
+ * Get selected layer subtitle
+ */
+getSelectedLayerSubtitle(): string {
+  if (!this.selectedLayerInfo) return 'اختر نوع المخاطر لعرض المعلومات';
+  return this.selectedLayerInfo.name;
+}
+
+/**
+ * Get selected layer description
+ */
+getSelectedLayerDescription(): string {
+  if (!this.selectedLayerInfo) {
+    return 'تشمل مخاطر الحوض المادية كل من الظروف الطبيعية والأنشطة البشرية في أحواض الأنهار. اختر نوع المخاطر أعلاه لعرض البيانات والمعلومات التفصيلية.';
+  }
+  return this.selectedLayerInfo.descriptionAr;
+}
+
+
+
   private async checkTileServerHealth(): Promise<boolean> {
     try {
       const response = await this.http.get(`${this.TILE_SERVER_URL}/health`).toPromise();
@@ -251,13 +410,13 @@ export class ExploreMapComponent implements OnInit, AfterViewInit {
       content: layerList,
       expanded: false
     });
-    const lExpand = new Expand({
-      view: this.mapView,
-      content: LegendWedgit,
-      expanded: false
-    });
+    // const lExpand = new Expand({
+    //   view: this.mapView,
+    //   content: LegendWedgit,
+    //   expanded: false
+    // });
     this.mapView.ui.add(llExpand, 'top-right');
-    this.mapView.ui.add(lExpand, 'top-right');
+//    this.mapView.ui.add(lExpand, 'top-right');
   }
 
   /**
@@ -338,12 +497,27 @@ export class ExploreMapComponent implements OnInit, AfterViewInit {
   }
 
   /**
+   * Get available risk types (layer names)
+   */
+  getRiskTypeOptions(): Array<{id: string, nameAr: string}> {
+    return this.availableLayers.map(layer => ({
+      id: layer.id,
+      nameAr: layer.nameAr
+    }));
+  }
+
+  /**
    * Select and display a water stress layer
    */
   async selectWaterStressLayer(layerId: string): Promise<void> {
     console.log(`🎯 Selecting layer: ${layerId}`);
     this.selectedWaterStressLayer = layerId;
+    this.selectedRiskType = layerId; // Update risk type selection
     this.showWaterStressDropdown = false;
+    
+    // Update selected layer info
+    this.selectedLayerInfo = this.layerMetadata[layerId] || null;
+    this.showLayerDescription = true;
     
     // Hide current layer
     if (this.currentWaterStressLayer) {
@@ -441,9 +615,18 @@ export class ExploreMapComponent implements OnInit, AfterViewInit {
    * Get selected water stress layer name
    */
   getSelectedWaterStressLayerName(): string {
-    if (!this.selectedWaterStressLayer) return 'اختر طبقة الإجهاد المائي';
+    if (!this.selectedWaterStressLayer) return 'اختر طبقة البيانات';
     const layer = this.layerMetadata[this.selectedWaterStressLayer];
-    return layer ? layer.nameAr : 'اختر طبقة الإجهاد المائي';
+    return layer ? layer.nameAr : 'اختر طبقة البيانات';
+  }
+
+  /**
+   * Get selected risk type name
+   */
+  getSelectedRiskTypeName(): string {
+    if (!this.selectedRiskType) return 'اختر نوع المخاطر';
+    const layer = this.layerMetadata[this.selectedRiskType];
+    return layer ? layer.nameAr : 'اختر نوع المخاطر';
   }
 
   /**
@@ -455,6 +638,26 @@ export class ExploreMapComponent implements OnInit, AfterViewInit {
     });
     this.currentWaterStressLayer = null;
     this.selectedWaterStressLayer = '';
+    this.selectedRiskType = '';
+    this.selectedLayerInfo = null;
+    this.showLayerDescription = false;
+  }
+
+  /**
+   * Toggle layer description visibility
+   */
+  toggleLayerDescription(): void {
+    this.showLayerDescription = !this.showLayerDescription;
+  }
+
+  /**
+   * Get legend items for current layer
+   */
+  getCurrentLayerLegend(): Array<{color: string, label: string, labelAr: string, value?: string}> {
+    if (!this.selectedLayerInfo || !this.selectedLayerInfo.legend) {
+      return [];
+    }
+    return this.selectedLayerInfo.legend.items;
   }
 
   /**
@@ -465,7 +668,7 @@ export class ExploreMapComponent implements OnInit, AfterViewInit {
     if (isHealthy) {
       console.log('✅ Tile server is accessible');
       
-      // Test both layers
+      // Test all layers
       for (const layer of this.availableLayers) {
         const testUrl = `${this.TILE_SERVER_URL}/tiles/${layer.id}/0/0/0.png`;
         const tileExists = await this.testTileUrl(testUrl);
@@ -520,31 +723,18 @@ export class ExploreMapComponent implements OnInit, AfterViewInit {
     this.showMoreInfo = !this.showMoreInfo;
   }
 
+  /**
+   * Updated risk type change handler
+   */
   onRiskTypeChange(riskType: string): void {
     this.selectedRiskType = riskType;
     
-    const riskTypeMapping: { [key: string]: string } = {
-      'مخاطر الحوض المادية': 'annual_water_stress',
-      'مخاطر الجفاف': 'annual_water_stress',
-      'مخاطر الفيضانات': 'riverine_flood_risk',
-      'جودة المياه': 'annual_water_stress'
-    };
-    
-    const suggestedLayerId = riskTypeMapping[riskType];
-    if (suggestedLayerId && this.layerMetadata[suggestedLayerId]) {
-      this.selectWaterStressLayer(suggestedLayerId);
+    // Directly select the layer by its ID
+    if (this.layerMetadata[riskType]) {
+      this.selectWaterStressLayer(riskType);
     }
   }
 
-  onTransparencyChange(event: any): void {
-    this.transparencyValue = event.target.value;
-    if (this.currentWaterStressLayer) {
-      this.currentWaterStressLayer.opacity = this.transparencyValue / 100;
-    }
-    if (this.populationDensityLayer) {
-      (this.populationDensityLayer as any).opacity = this.transparencyValue / 100;
-    }
-  }
 
   goBack(): void {
     this.router.navigate(['/tabbed-category']);

@@ -69,15 +69,24 @@
     </div>
 
     <!-- Risk Selection -->
-    <div class="risk-selection">
-      <h3 class="risk-question">أي جانب من جوانب مخاطر المياه تريد رؤيته ؟</h3>
-      <div class="risk-dropdown">
-        <span class="selected-risk">{{ selectedRiskType }}</span>
-        <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M7,10L12,15L17,10H7Z"/>
-        </svg>
+<div class="risk-selection">
+  <h3 class="risk-question">أي جانب من جوانب مخاطر المياه تريد رؤيته ؟</h3>
+  <div class="custom-dropdown">
+    <div class="dropdown-selected" (click)="toggleLayerDropdown()">
+      <span>{{ getSelectedLayerName() }}</span>
+      <svg class="dropdown-arrow" [class.open]="showLayerDropdown" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M7,10L12,15L17,10H7Z"/>
+      </svg>
+    </div>
+    <div class="dropdown-options" *ngIf="showLayerDropdown">
+      <div class="dropdown-option"
+           *ngFor="let layer of mapLayers"
+           (click)="selectLayer(layer.id)">
+        {{ layer.name }}
       </div>
     </div>
+  </div>
+</div>
 
  
 
@@ -91,19 +100,37 @@
 
     <!-- Collapsible Info Section -->
     <div class="info-section" [class.expanded]="showMoreInfo">
-         <!-- Risk Layer Transparency Section -->
-    <div class="transparency-section">
-      <h3 class="section-title">شفافية طبقة المخاطر</h3>
-      <div class="slider-container">
-        <input type="range" class="transparency-slider" min="0" max="100" value="70" 
-               (input)="onTransparencyChange($event)">
-        <div class="slider-track">
-          <div class="slider-fill" [style.width.%]="transparencyValue"></div>
-          <div class="slider-thumb" [style.left.%]="transparencyValue"></div>
-        </div>
-      </div>
-    </div>
+         <!-- UPDATED Risk Layer Transparency Section -->
 
+<div class="transparency-section">
+  <h3 class="section-title">شفافية طبقة المخاطر</h3>
+  
+  <!-- Styled slider container -->
+  <div class="slider-wrapper">
+    <input type="range" 
+           class="styled-slider"
+           min="0" 
+           max="100" 
+           [value]="transparencyValue"
+           (input)="onTransparencyChange($event)">
+    
+    <!-- Custom slider track with fill -->
+    <div class="slider-track-bg">
+      <div class="slider-track-fill" [style.width.%]="transparencyValue"></div>
+    </div>
+  </div>
+  
+  <!-- Value display -->
+  <div class="transparency-value">
+    {{ transparencyValue }}%
+  </div>
+  
+  <!-- Labels -->
+  <div class="slider-labels">
+    <span class="label-transparent">شفاف</span>
+    <span class="label-opaque">معتم</span>
+  </div>
+</div>
     <!-- Additional Information Section -->
     <div class="additional-info-section">
       <h3 class="section-question">ما هي المعلومات الإضافية التي ترغب في رؤيته</h3>
@@ -144,16 +171,15 @@
 
     </div>
 
-    <h3 class="section-title">مخاطر الحوض المادية</h3>
-    <h4 class="section-subtitle">مخاطر المياه</h4>
-    <div class="section-description">
-      <p>
-        تشمل مخاطر الحوض المادية كل من الظروف الطبيعية والأنشطة البشرية في أحواض الأنهار. 
-        وتشمل أربع فئات رئيسية: توفر المياه، والجفاف، والفيضانات، وجودة المياه، وحالة خدمات النظام البيئي. 
-        وتعتبر المواقف التي تشهد ندرة في المياه، أو فائض، أو عدم ملاءمة للاستخدام، أو تدهور النظم البيئية المحيطة 
-        التي تؤثر على الخدمات المائية. يُنصح بالرجوع إلى الوثائق للحصول على مخاطر إقليمية محددة.
-      </p>
-    </div>
+    <div class="layer-description-section">
+  <h3 class="section-title">{{ getSelectedLayerTitle() }}</h3>
+  <h4 class="section-subtitle">{{ getSelectedLayerSubtitle() }}</h4>
+  <div class="section-description">
+    <p>
+      {{ getSelectedLayerDescription() }}
+    </p>
+  </div>
+</div>
     <!-- Legend/Filter -->
     <div class="legend-section">
       <h3 class="legend-title">مرشح مخاطر المياه التابع للصندوق العالمي للطبيعة (2024)</h3>

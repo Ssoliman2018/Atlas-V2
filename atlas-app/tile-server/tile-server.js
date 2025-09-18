@@ -35,12 +35,15 @@ app.get('/tiles/:layer/:z/:x/:y.png', (req, res) => {
     case 'riverine_flood_risk':
       tilePath = path.join(TILES_BASE_PATH, 'Riverine flood risk', 'Riverine flood risk', z, x, `${y}.png`);
       break;
+    case 'coastal_flood_risk':
+      tilePath = path.join(TILES_BASE_PATH, 'Coastal flood risk', 'Coastal flood risk', z, x, `${y}.png`);
+      break;
     default:
       console.log(`Unknown layer: ${layer}`);
       return res.status(404).json({ 
         error: 'Unknown layer', 
         layer,
-        availableLayers: ['annual_water_stress', 'riverine_flood_risk']
+        availableLayers: ['annual_water_stress', 'riverine_flood_risk', 'coastal_flood_risk']
       });
   }
   
@@ -84,6 +87,11 @@ app.get('/layers', (req, res) => {
         id: 'riverine_flood_risk', 
         name: 'Riverine Flood Risk',
         path: 'Riverine flood risk/Riverine flood risk'
+      },
+      {
+        id: 'coastal_flood_risk',
+        name: 'Coastal Flood Risk',
+        path: 'Coastal flood risk/Coastal flood risk'
       }
     ];
     
@@ -109,7 +117,8 @@ app.get('/layers/:layer/info', (req, res) => {
   // Define layer paths
   const layerPaths = {
     'annual_water_stress': 'Water Stress/Water Stress',
-    'riverine_flood_risk': 'Riverine flood risk/Riverine flood risk'
+    'riverine_flood_risk': 'Riverine flood risk/Riverine flood risk',
+    'coastal_flood_risk': 'Coastal flood risk/Coastal flood risk'
   };
   
   const layerSubPath = layerPaths[layer];
@@ -218,7 +227,8 @@ app.listen(PORT, () => {
     
     const layerConfigs = [
       { id: 'annual_water_stress', name: 'Annual Water Stress', path: 'Water Stress/Water Stress' },
-      { id: 'riverine_flood_risk', name: 'Riverine Flood Risk', path: 'Riverine flood risk/Riverine flood risk' }
+      { id: 'riverine_flood_risk', name: 'Riverine Flood Risk', path: 'Riverine flood risk/Riverine flood risk' },
+      { id: 'coastal_flood_risk', name: 'Coastal Flood Risk', path: 'Coastal flood risk/Coastal flood risk' }
     ];
     
     layerConfigs.forEach(config => {
