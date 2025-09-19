@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node tile-server.js",
     "dev": "nodemon tile-server.js",
-    "test": "node -e \"console.log('Testing tile server...'); require('./tile-server.js')\""
+    "test": "node -e \"console.log('Testing tile server...'); require('./tile-server.js')\"",
+    "build": "echo 'No build step required'",
+    "deploy": "gcloud run deploy tile-server --source . --platform managed --region us-central1 --allow-unauthenticated"
   },
   "dependencies": {
     "express": "^4.18.2",

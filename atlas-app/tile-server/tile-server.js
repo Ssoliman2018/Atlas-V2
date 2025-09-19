@@ -5,13 +5,13 @@ const fs = require('fs');
 const cors = require('cors');
 
 const app = express();
-const PORT = 3333;
+const PORT = process.env.PORT || 3333;
 
 // Enable CORS for all origins
 app.use(cors());
 
 // Base path to your projects directory
-const TILES_BASE_PATH = 'D:/Projects/evara';
+const TILES_BASE_PATH = './layers';
 
 // Middleware to log tile requests
 app.use((req, res, next) => {
@@ -58,8 +58,8 @@ app.get('/tiles/:layer/:z/:x/:y.png', (req, res) => {
       'Access-Control-Allow-Origin': '*'
     });
     
-    // Send the file
-    res.sendFile(tilePath);
+    // Send the file (convert to absolute path)
+    res.sendFile(path.resolve(tilePath));
   } else {
     console.log(`Tile not found: ${tilePath}`);
     res.status(404).json({ 
