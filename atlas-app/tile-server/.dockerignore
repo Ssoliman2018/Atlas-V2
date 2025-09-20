@@ -8,3 +8,19 @@ README.md
 coverage
 .DS_Store
 *.log
+
+# Exclude high-zoom level tiles to reduce build time significantly
+layers/*/14/
+layers/*/13/
+layers/*/12/
+layers/*/11/
+layers/*/10/
+layers/*/9/
+layers/*/8/
+layers/*/7/
+
+# Exclude zip files
+*.zip
+
+# Only keep essential low-zoom tiles for initial deployment
+# We can add higher zoom levels later via Cloud Storage

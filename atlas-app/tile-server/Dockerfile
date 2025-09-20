@@ -10,8 +10,11 @@ COPY package*.json ./
 # Install dependencies
 RUN npm ci --only=production
 
-# Copy the rest of the application code
-COPY . .
+# Copy application code first (smaller files)
+COPY tile-server.js ./
+
+# Copy layers directory (this will be much smaller now)
+COPY layers/ ./layers/
 
 # Create a non-root user to run the app
 RUN addgroup -g 1001 -S nodejs
