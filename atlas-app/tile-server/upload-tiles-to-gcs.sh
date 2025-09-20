@@ -6,8 +6,8 @@
 set -e
 
 # Configuration
-BUCKET_NAME=${1:-"your-tile-bucket"}
-PROJECT_ID=${2:-"your-project-id"}
+BUCKET_NAME=${1:-"swat-1e1a3.firebasestorage.app"}
+PROJECT_ID=${2:-"swat-1e1a3"}
 
 echo "🚀 Uploading high-zoom tiles to Google Cloud Storage..."
 echo "Bucket: $BUCKET_NAME"
